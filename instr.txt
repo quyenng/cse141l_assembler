@@ -1,0 +1,12 @@
+Str A r1
+Ld r2 r3
+Rtr r4 7
+Seq r6 r7
+Swp r1 4
+Xor r6 r2
+Ls r1 6
+Bno JUMP
+Bno TIME
+Bno JUMP
+Bno SCOOP
+Bno TIME
