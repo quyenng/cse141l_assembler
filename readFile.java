@@ -136,21 +136,23 @@ public class readFile {
     
     public static void main (String [] args) throws IOException {
 
-        File file = new File ("/Users/19qng/cse141l/assembler/ab_program1.txt");
+        File file = new File ("/Users/19qng/cse141l/assembler/ab_program3.txt");
         Scanner scan = new Scanner (file);
 
         String assembly = "";
+        //int linecntr = 0;
 
         while(scan.hasNextLine()) {
             //reads instr from text file
             String line = scan.nextLine();
+            //System.out.println(linecntr++);
             String strArray[] = line.split(" ");
 
             //converts instr to assembly code
             assembly = assembly.concat(machCode(strArray) + "\n");
         }
         
-        FileWriter writer = new FileWriter("/Users/19qng/cse141l/assembler/mc_program1.txt");
+        FileWriter writer = new FileWriter("/Users/19qng/cse141l/assembler/mc_program3.txt");
         writer.write(assembly);
         writer.close();
 
