@@ -1,0 +1,381 @@
+#r0 = accumulator = A
+#r1 = MSW
+#r2 = LSW
+#r3 = ErrorLoc = 0000 0000 
+#r4 = MOut
+#r5 = temp
+#r6 = 1 (constant)
+#r7 = mem[i] for i = [0:29]
+
+BIG_LOOP:
+#writing 30 manually
+Cnt A, r6
+Ls A, 1
+Cnt A, r6
+Ls A, 1
+Cnt A, r6
+Ls A, 1
+Cnt A, r6
+Ls A, 1
+
+Cnt A, r7
+
+Ld r2, A		#LSW = message[i]
+Cnt A, r6		#A also ++
+Ld r1, A		#MSW = message[i]
+
+#clearing registers for fresh run
+Ls r3, 4
+Ls r3, 4
+
+Ls r4, 4
+Ls r4, 4
+
+Ls r5, 4
+Ls r5, 4
+
+#Flush A
+Ls A, 4
+Ls A, 4
+
+Ls r3, 4
+Ls r3, 4 		#ErrorLoc = 0
+			#count number of 1’s in MSW[7:0] 
+
+Rtr r1, 7
+Xor r5, 0
+
+Rtr r1, 6
+Xor r5, 0
+
+Rtr r1, 5
+Xor r5, 0
+
+Rtr r1, 4
+Xor r5, 0
+
+Rtr r1, 3
+Xor r5, 0
+
+Rtr r1, 2
+Xor r5, 0
+
+Rtr r1, 1
+Xor r5, 0
+
+Rtr r1, 0
+Xor r5, 0
+				
+Rtr r5, 0		#(get least sig bit of counter put in A)
+Ls A, 3
+Xor r3, 3	#in the third slot of r3, we have 1 if there is no parity.
+#this indicates that it's in r1
+
+Ls A, 4
+Ls A, 4	#flushing A so that we start at even again.
+Ls r5, 4	#also R5
+Ls r5, 4
+
+Rtr r1, 7
+Xor r5, 0
+
+Rtr r1, 6
+Xor r5, 0
+
+Rtr r1, 5
+Xor r5, 0
+
+Rtr r1, 4
+Xor r5, 0
+			
+Rtr r2, 7		#count number of 1’s in LSW[7:4]
+Xor r5, 0
+
+Rtr r2, 6
+Xor r5, 0
+
+Rtr r2, 5
+Xor r5, 0
+
+Rtr r2, 4
+Xor r5, 0
+
+Rtr r5, 0		#(get least sig bit of counter put in A)
+Ls A, 2
+Xor r3, 2
+#indicates it's in the left half
+
+Ls A, 4
+Ls A, 4	#flushing A so that we start at even again.
+Ls r5, 4	#also R5
+Ls r5, 4
+
+Rtr r1, 7
+Xor r5, 0
+
+Rtr r1, 6
+Xor r5, 0
+
+Rtr r1, 3
+Xor r5, 0
+
+Rtr r1, 2
+Xor r5, 0
+			
+Rtr r2, 7		#count number of 1’s in LSW[7,6,3,2]
+Xor r5, 0
+
+Rtr r2, 6
+Xor r5, 0
+
+Rtr r2, 3
+Xor r5, 0
+
+Rtr r2, 2
+Xor r5, 0
+
+Rtr r5, 0		#(get least sig bit of counter put in A)
+Ls A, 1
+Xor r3, 1
+#indicates it's in one of the left quarters
+
+Ls A, 4
+Ls A, 4	#flushing A so that we start at even again.
+Ls r5, 4	#also R5
+Ls r5, 4
+
+Rtr r1, 7
+Xor r5, 0
+
+Rtr r1, 5
+Xor r5, 0
+
+Rtr r1, 3
+Xor r5, 0
+
+Rtr r1, 1
+Xor r5, 0
+			
+Rtr r2, 7		#count number of 1’s in LSW[7,5,3,1]
+Xor r5, 0
+
+Rtr r2, 5
+Xor r5, 0
+
+Rtr r2, 3
+Xor r5, 0
+
+Rtr r2, 1
+Xor r5, 0
+
+Rtr r5, 0		#(get least sig bit of counter put in A)
+#Ls A, 0		#just doing this for readability
+Xor r3, 0
+#final indication that it's in the left eight, or odd.
+
+#now errorLocation is stored in r3.
+#check whole parity
+
+Ls r5, 4	#start with flushing r5 for temp.
+Ls r5, 4
+
+Rtr r1, 7
+Xor r5, 0
+Rtr r1, 6
+Xor r5, 0
+Rtr r1, 5
+Xor r5, 0
+Rtr r1, 4
+Xor r5, 0
+Rtr r1, 3
+Xor r5, 0
+Rtr r1, 2
+Xor r5, 0
+Rtr r1, 1
+Xor r5, 0
+Rtr r1, 0
+Xor r5, 0
+Rtr r2, 7
+Xor r5, 0
+Rtr r2, 6
+Xor r5, 0
+Rtr r2, 5
+Xor r5, 0
+Rtr r2, 4
+Xor r5, 0
+Rtr r2, 3
+Xor r5, 0
+Rtr r2, 2
+Xor r5, 0
+Rtr r2, 1
+Xor r5, 0
+Rtr r2, 0
+Xor r5, 0
+#r5 now contains parity of whole thing.
+#while r3 contains location of a flip.
+#Ls A, 4
+#Ls A, 4		#this makes A = 0
+#Seq r3, A	#so if r3 == 0000 (all evens), A is 1 (no error)
+#Below is a truth table described for r5 and A
+#	1-0 means odd parity and error detected -> single error
+#	1-1 means odd parity and no error detected -> single error (parity bit).
+#	0-0 means even parity and error detected -> double error
+#	0-1 means even parity and no error detected -> no error
+#	the plan: for r5 == 1, we do single error correction.
+#	for r5 == 0, we differentiate between the errors.
+Rtr r5, 0
+
+#SINGLE ERROR CORRECTION BLOC, if r5 is 0 it means it was even.
+Bno SKIP_SINGLE
+
+#in here, we do single error correction. First indicating so.
+#and using r5 as our temp. 
+Ls r5, 4
+Ls r5, 4
+
+Ls A, 4
+Ls A, 4
+Rtr r6, 0	#this code flips MSW[6]
+Ls A, 6	
+Xor r4, 6
+
+Cnt r5, r6 #put 1 in 0th position
+#we start our r5 count deciding for 0th index or 1st index.
+Rtr r3, 0
+Bno SKIP_ZERO	#will skip if 0th position is 0
+Ls r5, 1
+SKIP_ZERO:
+
+#then we check 1st index
+Rtr r3, 1
+Bno SKIP_ONE
+Ls r5, 2
+SKIP_ONE:
+
+#then we check the second index
+Rtr r3, 2
+Bno SKIP_TWO
+Ls r5, 4
+SKIP_TWO:
+
+#finally, we decide which register with the third
+Rtr r3, 3
+Bno SKIP_EIGHT	#so in here, r3[3] == 1
+Ls A, 4
+Ls A, 4
+Cnt A, r5	#putting into A
+Xor r1, 0
+Xor r1, 1
+Xor r1, 2
+Xor r1, 3
+Xor r1, 4
+Xor r1, 5
+Xor r1, 6
+Xor r1, 7
+Rtr r6, 1	#we jump straight to finish from here.
+Bno FINISH
+
+SKIP_EIGHT:
+Ls A, 4
+Ls A, 4
+Cnt A, r5	#putting into A
+Xor r2, 0
+Xor r2, 1
+Xor r2, 2
+Xor r2, 3
+Xor r2, 4
+Xor r2, 5
+Xor r2, 6
+Xor r2, 7
+
+Rtr r6, 1
+Bno FINISH
+SKIP_SINGLE:
+
+#DOUBLE ERROR/NO ERROR BLOC
+Ls A, 4
+Ls A, 4		#a bit repetitive, we're checking if error was detected.
+Seq r3, A	#a 1 indicates no error, a 0 indicates yes error.
+Bno SKIP_ERROR	#we only skip if there is error
+#no error in here
+Rtr r6, 1
+Bno FINISH	#jumping to finish
+SKIP_ERROR:	#but here thar be error
+Rtr r6, 0
+Ls A, 7
+Xor r4, 7	#just set r4's most significant bit to 1.
+
+#When we're done with error correction
+FINISH:
+#r5 will be LSW
+Ls r5, 4
+Ls r5, 4
+Ls A, 4
+Ls A, 4 #flushing
+#loading data bits.
+
+Rtr r1, 7
+Ls A, 2
+Xor r4, 2
+
+Rtr r1, 6
+Ls A, 1
+Xor r4, 1
+
+Rtr r1, 5
+Ls A, 0
+Xor r4, 0
+
+Rtr r1, 4
+Ls A, 7
+Xor r5, 7
+
+Rtr r1, 3
+Ls A, 6
+Xor r5, 6
+
+Rtr r1, 2
+Ls A, 5
+Xor r5, 5
+
+Rtr r1, 1
+Ls A, 4
+Xor r5, 4
+
+Rtr r2, 7
+Ls A, 3
+Xor r5, 3
+
+Rtr r2, 6
+Ls A, 2
+Xor r5, 2
+
+Rtr r2, 5
+Ls A, 1
+Xor r5, 1
+
+Rtr r2, 3
+#Ls A, 0
+Xor r5, 0
+
+Str r5, r7	#storing r5 in DM[i+1], swapped from initial implementation
+Cnt r7, r6
+
+Str r4, r7	#storing r4 in DM[i]
+Cnt r7, r6
+
+
+#writing 30 manually
+Ls A, 4
+Ls A, 4
+Cnt A, r6
+Ls A, 1
+Cnt A, r6
+Ls A, 1
+Cnt A, r6
+Ls A, 1
+Cnt A, r6
+Ls A, 1
+
+Seq A, r7
+Bno BIG_LOOP

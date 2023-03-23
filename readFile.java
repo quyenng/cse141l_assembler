@@ -3,12 +3,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.HashMap;
 
 
 public class readFile {
-    public static HashMap<String, String> jumps = new HashMap<String, String>();
+    public static HashMap<Integer, Integer> jumps = new HashMap<Integer, Integer>();
 
     public static String machCode (String [] args) {
         String opcode = "";
@@ -76,11 +77,12 @@ public class readFile {
             
             //immediates for type j
             default:
-                /* 
-                if hashmap empty, just put first jump destination in. 
+                arg_a = String.format("%6s", Integer.toBinaryString(jumps.get(args[1].hashCode()))).replace(' ', '0');
+                /*
+                if hashmap empty, just put first jump destination in.
                 otherwise, check if dest is already in map, put into map if not, return existing number if yes
-                */ 
-                if (jumps.size() == 0) {
+                */
+                /*if (jumps.size() == 0) {
                     arg_a = String.format("%6s", Integer.toBinaryString(0)).replace(' ', '0');
                     jumps.put(args[1], arg_a);
                 }
@@ -92,7 +94,7 @@ public class readFile {
                     else {
                         arg_a = jumps.get(args[1]);
                     }
-                }
+                }*/
 
         }
     
@@ -136,15 +138,15 @@ public class readFile {
     
     public static void main (String [] args) throws IOException {
 
-        File file = new File ("raw_program1.txt");
+        File file = new File ("raw_program2.txt");
         Scanner scan = new Scanner (file);
+        Scanner jumpScanner = new Scanner(file);
 
-        String assembly = "";
-        //int linecntr = 0;
-
-        while(scan.hasNextLine()) {
-            //reads instr from text file
-            String line = scan.nextLine();
+        int indexOfJump = 0;
+        int count = 0;
+        String jumpPoints = "";
+        while(jumpScanner.hasNextLine()) {
+            String line = jumpScanner.nextLine();
             line = line.replace(",", "");
             line = line.replace("\t", "");
             int commentStart = line.indexOf('#');
@@ -156,6 +158,39 @@ public class readFile {
             {
                 continue;
             }
+            if(line.indexOf(':') != -1)
+            {
+                jumpPoints = jumpPoints.concat(Integer.toBinaryString(count) + "\n");
+                line = line.replace(":", "");
+                System.out.println(line);
+                jumps.put(line.hashCode(), indexOfJump);
+                indexOfJump++;
+
+                continue;
+            }
+
+            count++;
+        }
+
+        String assembly = "";
+        //int linecntr = 0;
+
+        int i = 1;
+        while(scan.hasNextLine()) {
+            //reads instr from text file
+            String line = scan.nextLine();
+            line = line.replace(",", "");
+            line = line.replace("\t", "");
+            int commentStart = line.indexOf('#');
+            if(commentStart != -1)
+            {
+                line = line.substring(0, commentStart);
+            }
+            i++;
+            if(line.length() == 0 || line.indexOf(':') != -1)
+            {
+                continue;
+            }
 
             //System.out.println(linecntr++);
             String strArray[] = line.split(" ");
@@ -164,10 +199,12 @@ public class readFile {
             assembly = assembly.concat(machCode(strArray) + "\n");
         }
         
-        FileWriter writer = new FileWriter("mc_program1.txt");
+        FileWriter writer = new FileWriter("mc_program2.txt");
         writer.write(assembly);
         writer.close();
 
-
+        FileWriter branchWriter = new FileWriter("PC_LUT2.txt");
+        branchWriter.write(jumpPoints);
+        branchWriter.close();
     }
 }

@@ -9,6 +9,7 @@
 #r6 = 1 (constant)
 #r7 = (i) 0 to 29 for mem[0:29]
 
+LOOP:
 Ld r2, r7	#here i swapped the order, because I think they might it in backwards order?
 Cnt r7, r6
 Ld r1, r7
