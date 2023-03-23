@@ -9,9 +9,22 @@
 #r6 = 1 (constant)
 #r7 = (i) 0 to 29 for mem[0:29]
 
-Ld r1, r7
+Ld r2, r7	#here i swapped the order, because I think they might it in backwards order?
 Cnt r7, r6
-Ld r2, r7
+Ld r1, r7
+
+#complete flushage of registers to account for loop
+Ls A, 4
+Ls A, 4
+
+Ls r3, 4
+Ls r3, 4
+
+Ls r4, 4
+Ls r4, 4
+
+Ls r5, 4
+Ls r5, 4
 
 #r3 and r4 will be out corresponding outputs. R5 will be our temp.
 
@@ -118,7 +131,7 @@ Xor r5, 0
 Rtr r2, 1
 Xor r5, 0
 
-Rtr A, 0
+Rtr r5, 0
 Ls A, 4	#moves the XORd bit to match r4
 Xor r4, 4	#Xors with A at index 4
 
@@ -147,7 +160,7 @@ Xor r5, 0
 Rtr r2, 0
 Xor r5, 0
 
-Rtr A, 0
+Rtr r5, 0
 Ls A, 2
 Xor r4, 2
 
@@ -164,51 +177,95 @@ Xor r5, 0
 Rtr r2, 6
 Xor r5, 0
 
-Rtr r2, 5
+Rtr r2, 4
 Xor r5, 0
 
 Rtr r2, 3
 Xor r5, 0
 
-Rtr r2, 2
+Rtr r2, 1
 Xor r5, 0
 
 Rtr r2, 0
 Xor r5, 0
 
-Rtr A, 0
+Rtr r5, 0
 Ls A, 1
 Xor r4, 1
 
-#now to store.
-Ls r5, 4	#flushing r5
+#for p0
 Ls r5, 4
+Ls r5, 4
+
+Rtr r3, 7
+Xor r5, 0
+Rtr r3, 6
+Xor r5, 0
+Rtr r3, 5
+Xor r5, 0
+Rtr r3, 4
+Xor r5, 0
+Rtr r3, 3
+Xor r5, 0
+Rtr r3, 2
+Xor r5, 0
+Rtr r3, 1
+Xor r5, 0
+Rtr r3, 0
+Xor r5, 0
+
+Rtr r4, 7
+Xor r5, 0
+Rtr r4, 6
+Xor r5, 0
+Rtr r4, 5
+Xor r5, 0
+Rtr r4, 4
+Xor r5, 0
+Rtr r4, 3
+Xor r5, 0
+Rtr r4, 2
+Xor r5, 0
+Rtr r4, 1
+Xor r5, 0
+Rtr r4, 0
+Xor r5, 0
+
+Rtr r5, 0
+Xor r4, 0
+
+#now to store.
+Ls A, 4	#flushing A
+Ls A, 4
 #writing 30 manually
-Rtr r6, 0	#loads one into the least significant spot of A
+Cnt A, r6	#loads one into the least significant spot of A
 Ls A, 1
-Rtr r6, 0
+Cnt A, r6
 Ls A, 1
-Rtr r6, 0
+Cnt A, r6
 Ls A, 1
-Rtr r6, 0
+Cnt A, r6
 Ls A, 1
 
 Cnt A, r7	#note that r7 is odd here
-Str r4, A	#loading the second one into the odd position
-Rtr r6, 1	#reducing A by 1, by turning off the first place bit.
-Str r3, A	#loading the first one into the even position.
+Str r3, A	#loading the first one into the odd position
+#Rtr r6, 1	//reducing A by 1, by turning off the first place bit.
+Xor A, 0	#this will flip hte bit, making it even. Rtr replaces whole thing.
+Str r4, A	#loading the second one into the even position.
 
 #finally we loop back. Here we will hardcode in 29
 Ls A, 4	#flushing A
 Ls A, 4	
 #writing 29 manually
-Rtr r6, 0	#loads one into the least significant spot of A
+Cnt A, r6	#loads one into the least significant spot of A
 Ls A, 1
-Rtr r6, 0
+Cnt A, r6
 Ls A, 1
-Rtr r6, 0
+Cnt A, r6
 Ls A, 2
-Rtr r6, 0
+Cnt A, r6
 
 Seq r7, A		#setting if r7 is equal to 29. R7 is always odd at this point.
 Cnt r7, r6		#Increment for the next loop.
+
+Bno LOOP
