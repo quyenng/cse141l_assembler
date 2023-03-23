@@ -1,0 +1,214 @@
+#r7 will be tracking our memory. Starting at 0. R6 is 1.
+
+
+#r0 = accumulator = A
+#r1 = MSW
+#r2 = LSW
+#r3 and r4 comprise Output
+#r3 as MSW of Output, and r4 as LSW of Output.
+#r6 = 1 (constant)
+#r7 = (i) 0 to 29 for mem[0:29]
+
+Ld r1, r7
+Cnt r7, r6
+Ld r2, r7
+
+#r3 and r4 will be out corresponding outputs. R5 will be our temp.
+
+#p8 coverage
+Rtr r1, 2
+Ls A, 7
+Xor r3, 7
+
+Rtr r1, 1
+Ls A, 6
+Xor r3, 6
+
+Rtr r1, 0
+Ls A, 5
+Xor r3, 5
+
+Rtr r2, 7
+Ls A, 4
+Xor r3, 4
+
+Rtr r2, 6
+Ls A, 3
+Xor r3, 3
+
+Rtr r2, 5
+Ls A, 2
+Xor r3, 2
+
+Rtr r2, 4
+Ls A, 1
+Xor r3, 1
+
+#p4 coverage
+Rtr r2, 3
+Ls A, 7
+Xor r4, 7
+
+Rtr r2, 2
+Ls A, 6
+Xor r4, 6
+
+Rtr r2, 1
+Ls A, 5
+Xor r4, 5
+
+#p2 and p1 coverage
+
+Rtr r2, 0
+Ls A, 3
+Xor r4, 3
+
+#for p8
+#this empties r5
+Ls r5, 4
+Ls r5, 4
+
+Rtr r1, 2
+Xor r5, 0
+
+Rtr r1, 1
+Xor r5, 0
+
+Rtr r1, 0
+Xor r5, 0
+
+Rtr r2, 7
+Xor r5, 0
+
+Rtr r2, 6
+Xor r5, 0
+
+Rtr r2, 5
+Xor r5, 0
+
+Rtr r2, 4
+Xor r5, 0
+
+#The 8th bit here, we XOR it with if it’s 
+Rtr r5, 0
+Xor r3, 0
+
+#for p4
+Ls r5, 4
+Ls r5, 4
+
+Rtr r1, 2
+Xor r5, 0
+
+Rtr r1, 1
+Xor r5, 0
+
+Rtr r1, 0
+Xor r5, 0
+
+Rtr r2, 7
+Xor r5, 0
+
+Rtr r2, 3
+Xor r5, 0
+
+Rtr r2, 2
+Xor r5, 0
+
+Rtr r2, 1
+Xor r5, 0
+
+Rtr A, 0
+Ls A, 4	#moves the XORd bit to match r4
+Xor r4, 4	#Xors with A at index 4
+
+#For p2
+Ls r5, 4
+Ls r5, 4
+
+Rtr r1, 2
+Xor r5, 0
+
+Rtr r1, 1
+Xor r5, 0
+
+Rtr r2, 6
+Xor r5, 0
+
+Rtr r2, 5
+Xor r5, 0
+
+Rtr r2, 3
+Xor r5, 0
+
+Rtr r2, 2
+Xor r5, 0
+
+Rtr r2, 0
+Xor r5, 0
+
+Rtr A, 0
+Ls A, 2
+Xor r4, 2
+
+#for p1
+Ls r5, 4
+Ls r5, 4
+
+Rtr r1, 2
+Xor r5, 0
+
+Rtr r1, 0
+Xor r5, 0
+
+Rtr r2, 6
+Xor r5, 0
+
+Rtr r2, 5
+Xor r5, 0
+
+Rtr r2, 3
+Xor r5, 0
+
+Rtr r2, 2
+Xor r5, 0
+
+Rtr r2, 0
+Xor r5, 0
+
+Rtr A, 0
+Ls A, 1
+Xor r4, 1
+
+#now to store.
+Ls r5, 4	#flushing r5
+Ls r5, 4
+#writing 30 manually
+Rtr r6, 0	#loads one into the least significant spot of A
+Ls A, 1
+Rtr r6, 0
+Ls A, 1
+Rtr r6, 0
+Ls A, 1
+Rtr r6, 0
+Ls A, 1
+
+Cnt A, r7	#note that r7 is odd here
+Str r4, A	#loading the second one into the odd position
+Rtr r6, 1	#reducing A by 1, by turning off the first place bit.
+Str r3, A	#loading the first one into the even position.
+
+#finally we loop back. Here we will hardcode in 29
+Ls A, 4	#flushing A
+Ls A, 4	
+#writing 29 manually
+Rtr r6, 0	#loads one into the least significant spot of A
+Ls A, 1
+Rtr r6, 0
+Ls A, 1
+Rtr r6, 0
+Ls A, 2
+Rtr r6, 0
+
+Seq r7, A		#setting if r7 is equal to 29. R7 is always odd at this point.
+Cnt r7, r6		#Increment for the next loop.

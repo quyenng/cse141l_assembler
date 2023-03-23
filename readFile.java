@@ -136,7 +136,7 @@ public class readFile {
     
     public static void main (String [] args) throws IOException {
 
-        File file = new File ("/Users/19qng/cse141l/assembler/ab_program3.txt");
+        File file = new File ("raw_program1.txt");
         Scanner scan = new Scanner (file);
 
         String assembly = "";
@@ -145,6 +145,18 @@ public class readFile {
         while(scan.hasNextLine()) {
             //reads instr from text file
             String line = scan.nextLine();
+            line = line.replace(",", "");
+            line = line.replace("\t", "");
+            int commentStart = line.indexOf('#');
+            if(commentStart != -1)
+            {
+                line = line.substring(0, commentStart);
+            }
+            if(line.length() == 0)
+            {
+                continue;
+            }
+
             //System.out.println(linecntr++);
             String strArray[] = line.split(" ");
 
@@ -152,7 +164,7 @@ public class readFile {
             assembly = assembly.concat(machCode(strArray) + "\n");
         }
         
-        FileWriter writer = new FileWriter("/Users/19qng/cse141l/assembler/mc_program3.txt");
+        FileWriter writer = new FileWriter("mc_program1.txt");
         writer.write(assembly);
         writer.close();
 
