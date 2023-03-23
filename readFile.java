@@ -138,7 +138,7 @@ public class readFile {
     
     public static void main (String [] args) throws IOException {
 
-        File file = new File ("raw_program2.txt");
+        File file = new File ("raw_program3.txt");
         Scanner scan = new Scanner (file);
         Scanner jumpScanner = new Scanner(file);
 
@@ -199,11 +199,11 @@ public class readFile {
             assembly = assembly.concat(machCode(strArray) + "\n");
         }
         
-        FileWriter writer = new FileWriter("mc_program2.txt");
+        FileWriter writer = new FileWriter("mach_code.txt");
         writer.write(assembly);
         writer.close();
 
-        FileWriter branchWriter = new FileWriter("PC_LUT2.txt");
+        FileWriter branchWriter = new FileWriter("PC_LUT.txt");
         branchWriter.write(jumpPoints);
         branchWriter.close();
     }

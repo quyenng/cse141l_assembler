@@ -1,0 +1,449 @@
+#not enough time to do this up
+#r1 = i
+#r2 = count with 1 byte.
+#r3 = count within byte
+#r4 = temp
+#r5 = temp
+#r6 = constant 1
+#r7 = pattern
+
+Cnt r5, r6
+Ls r5, 5	#r5 is now 32
+Ld r7, r5	#loading pattern in
+
+#LOOP IT
+LOOPI:
+	#manual verification
+	#within r4, we can only get the pattern starting in 7, 6, 5, or 4
+	Ls r5, 4
+	Ls r5, 4
+	
+#CHECKING 7-3 HERE
+	Ld r4, r1
+	Ls r4, 0	#symbolic ls
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+	
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+	Cnt r5, A
+	
+#CHECKING 6-2 HERE
+	Ld r4, r1
+	Ls r4, 1	#increase to cycle through bit.
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+	
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+	Cnt r5, A
+	
+#CHECKING 5-1 HERE
+	Ld r4, r1
+	Ls r4, 2	#increase to cycle through bit.
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+	
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+	Cnt r5, A
+	
+#CHECKING 4-0 HERE
+	Ld r4, r1
+	Ls r4, 3	#increase to cycle through bit.
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+	Cnt r5, A
+
+#At the end, if r5 is not zero we increment r3
+	Rtr r6, 1	#clears A
+	Seq r5, A	#(r5 == 0)? 1 : 0
+	Cnt A, r6	#dirty inversion trick
+	Rtr A, 0	#(r5 == 0)? 0 : 1
+	Cnt r3, A
+	
+
+	#Increment and try to leave here
+	Cnt r1, r6	#We've incremented r1 here!
+	#set r5 to 32.
+	Ls r5, 4
+	Ls r5, 4
+	Cnt r5, r6
+	Ls r5, 5
+
+Seq r1, r5	#if i = 32 we stop.
+Bno LOOPI
+
+Cnt r5, r6 		#increment to 33.
+Str r2, r5		#load count into mem[33]
+Cnt r5, r6		#increment to 34.
+Str r3, r5		#load byteCount into mem[34]
+
+#A different loop that just adds onto what we built previously seems best here
+#Since previously we covered 7 6 5 4 from bytes, now we cover 3 2 1 0.
+#to do this, we need to load 2 bytes in at once
+#r1 will be our index
+#r2 will be used to keep track
+#r3 will be a temp register
+#r4 will be byte 0
+#r5 will be byte 1
+#r6 is 1 as always
+#r7 is still our pattern.
+
+#carry over pattern count without crossing bytes
+
+#starting at 0 again.
+Ls r1, 4
+Ls r1, 4
+
+LOOPJ:
+
+Ls r3, 4
+Ls r3, 4
+
+#CHECKING 3- -1 HERE
+	Rtr r6, 1	#clears A
+	Cnt A, r1
+	Ld r4, A	#load i
+	Cnt A, r6
+	Ld r5, A	#load i+1
+	
+	#gonna combine the two.
+	Ls r4, 4
+	
+	#need to add the upper bits to r4
+	Rtr r5, 7
+	Ls A, 3
+	Xor r4, 3
+	
+	Rtr r5, 6
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r5, 5
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r5, 4
+	Ls A, 0
+	Xor r4, 0
+	
+	#from here we can do basically the same thing we did before.
+	
+	Ls r4, 0	#increase to cycle through bit.
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+
+#CHECKING 2- -2 HERE
+	Rtr r6, 1	#clears A
+	Cnt A, r1
+	Ld r4, A	#load i
+	Cnt A, r6
+	Ld r5, A	#load i+1
+	
+	#gonna combine the two.
+	Ls r4, 4
+	
+	#need to add the upper bits to r4
+	Rtr r5, 7
+	Ls A, 3
+	Xor r4, 3
+	
+	Rtr r5, 6
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r5, 5
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r5, 4
+	Ls A, 0
+	Xor r4, 0
+	
+	#from here we can do basically the same thing we did before.
+	
+	Ls r4, 1	#increase to cycle through bit.
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+	
+#CHECKING 1- -3 HERE
+	Rtr r6, 1	#clears A
+	Cnt A, r1
+	Ld r4, A	#load i
+	Cnt A, r6
+	Ld r5, A	#load i+1
+	
+	#gonna combine the two.
+	Ls r4, 4
+	
+	#need to add the upper bits to r4
+	Rtr r5, 7
+	Ls A, 3
+	Xor r4, 3
+	
+	Rtr r5, 6
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r5, 5
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r5, 4
+	Ls A, 0
+	Xor r4, 0
+	
+	#from here we can do basically the same thing we did before.
+	
+	Ls r4, 2	#increase to cycle through bit.
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+	
+#CHECKING 0- -4 HERE
+	Rtr r6, 1	#clears A
+	Cnt A, r1
+	Ld r4, A	#load i
+	Cnt A, r6
+	Ld r5, A	#load i+1
+	
+	#gonna combine the two.
+	Ls r4, 4
+	
+	#need to add the upper bits to r4
+	Rtr r5, 7
+	Ls A, 3
+	Xor r4, 3
+	
+	Rtr r5, 6
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r5, 5
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r5, 4
+	Ls A, 0
+	Xor r4, 0
+	
+	#from here we can do basically the same thing we did before.
+	
+	Ls r4, 3	#increase to cycle through bit.
+	
+	Rtr r6, 1	#clear A, load in pattern, shift to match 7 6 5 or 4th place
+	Cnt A, r7	#load in pattern
+	
+	Xor r4, 7
+	Xor r4, 6
+	Xor r4, 5
+	Xor r4, 4
+	Xor r4, 3
+	
+	#nuke remaining bits
+	Rtr r4, 2
+	Ls A, 2
+	Xor r4, 2
+	
+	Rtr r4, 1
+	Ls A, 1
+	Xor r4, 1
+	
+	Rtr r4, 0
+	Ls A, 0
+	Xor r4, 0
+
+	#Increment r2 and r5 if match is found
+	Rtr r6, 1
+	Seq r4, A	
+	Cnt r2, A
+
+#Increment and try to leave here
+	Cnt r1, r6	#We've incremented r1 here!
+	#set r5 to 31.
+	Ls r5, 4
+	Ls r5, 4
+	Cnt r5, r6
+	Ls r5, 1
+	Cnt r5, r6
+	Ls r5, 1
+	Cnt r5, r6
+	Ls r5, 1
+	Cnt r5, r6
+	Ls r5, 1
+	Cnt r5, r6
+
+Seq r1, r5	#if i = 31 we stop.
+Bno LOOPJ
+
+Cnt r5, r6 		#increment to 32
+Cnt r5, r6		#increment to 33
+Cnt r5, r6		#increment to 34
+Cnt r5, r6		#increment to 35
+Str r2, r5		#load total into mem[35]
